@@ -23,10 +23,10 @@ class Run:
     ########################### File Upload/Download lists ############################
 
     def download(self, remote, local, **kwargs):
-        self.host.download(self.__host_context, remote, local, **kwargs)
+        self.host.download_file(self.__host_context, remote, local, **kwargs)
 
     def upload(self, local, remote, **kwargs):
-        self.host.upload(self.__host_context, local, remote, **kwargs)
+        self.host.upload_file(self.__host_context, local, remote, **kwargs)
 
     ########################## Host Option Setters ##########################
 

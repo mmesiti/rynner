@@ -1,0 +1,113 @@
+class Runner:
+    def run(self):
+        return Run()
+
+    # store downloads
+
+    # def create(self, download=None, upload=None):
+    #     if type(download) is tuple:
+    #         download = [download]
+    #     if download is None:
+    #         download = []
+    #     self.__downloads = download
+
+    #     if type(upload) is tuple:
+    #         upload = [upload]
+    #     if upload is None:
+    #         upload = []
+    #     self.__uploads = upload
+
+    # @property
+    # def uploads(self):
+    #     return self.__uploads
+
+
+# simple:
+
+# Runner is a factory, builds runnable objects
+# -> builds runnables,
+# -> composes them with run logic etc (or accepts them back, doesn't matter)
+# ==> what if I want to select runnable at runtime????
+
+# Runner.run() => interfaces with host logic...
+# Job is just a data object (e.g. a dict) => should be easy to serialise...!
+
+
+class Runner:
+    def run(self):
+        return Run()
+
+    # store downloads
+
+    # def create(self, download=None, upload=None):
+    #     if type(download) is tuple:
+    #         download = [download]
+    #     if download is None:
+    #         download = []
+    #     self.__downloads = download
+
+    #     if type(upload) is tuple:
+    #         upload = [upload]
+    #     if upload is None:
+    #         upload = []
+    #     self.__uploads = upload
+
+    # @property
+    # def uploads(self):
+    #     return self.__uploads
+
+
+# simple:
+
+* Run objects are composed with logic + contain state
+** Run
+   - initalised with host behaviour and connection
+   - run() passes *SELF* to HostBehaviour.run() along with connection
+   - run can serialize/reload itself from file
+** HostAdapter
+   - run() : build jobcards + submits job, using connection object
+   - maintains any "global" state (e.g. files for download) in a data store
+** Application logic
+   - passes a named tuple with behaviour and connection to job_create method
+** Pros/Cons
+   - PRO: fewer objects, and less state
+   - PRO: Less code
+   - CON: Run object actually "does stuff"
+   - CON: Run object defines an interface, HostBehaviour can't do anything about this
+   - CON: Need to manually pass HostBehaviour + Connection to Run object at runtime
+   - CON: Run is a data object? is it easy to serialise?
+** Options
+   - run has several states -> replace HostSubmit
+* Run objects are persistent/reloaded global objects
+** Pros
+   - Easier to test?
+** Cons
+   - Run objects need to be serialised/restarted
+   - One object with a lot of responsibilities => but can have smaller ones
+   - The API object is confusing...!? Maybe just a dict?
+   - File download behaviour is kept in the job - every run has a housekeeping() method?
+* Run objects are configured with a dict
+** Pros
+   - I can still check validity of the dict
+   - easy to serialise -> it's a data structure
+   - just build and submit it on the spot?
+** Cons
+   - But no autocomplete....
+   - and no keyword arguments (well...not really...but maybe?)
+   
+
+
+
+* Pass Context Around
+# => from data['runner'] or passed in manually?
+** Run
+    * calls get_context on behaviour
+    * maps all options onto behaviour (rather than options)
+    * passes the same context every time
+    * submits the job using behaviour.submit
+* Notes
+# Needs a string representation of host_adapter to serialize (should be easy, create a UUID and store it on the cluster => combine with something in case duplicate ).
+
+* Important Considerations
+- there could be multiple types of jobs with different interfaces/options
+- is there a way to write plugins to handle this?
